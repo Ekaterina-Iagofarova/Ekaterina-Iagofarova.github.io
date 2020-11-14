@@ -1,75 +1,110 @@
-///////1-е задание//////////////////
-function returnFirstArgument(arg) {
-  return arg;
-}
+import { randomStringArray, randomValue as random } from '../../scripts/helper';
+import {
+  bindFunction,
+  returnArgumentsArray,
+  returnCounter,
+  returnFirstArgument,
+  returnFnResult,
+  sumWithDefaults,
+} from './index';
 
-test('returnFirstArgument должна вернуть 10', () => {
-  expect(returnFirstArgument(10)).toBe(10);
-});
+describe('ДЗ 1 - функции', () => {
+  describe('returnFirstArgument', () => {
+    it('должна возвращать переданный аргумент', () => {
+      const value = random();
+      const result = returnFirstArgument(value);
 
-test('returnFirstArgument должна вернуть привет мир', () => {
-  expect(returnFirstArgument('привет, мир')).toBe('привет, мир');
-});
+      expect(result).toBe(value);
+    });
+  });
 
-///////2-е задание//////////////////
-function sumWithDefaults(a, b) {
-  return a + b;
-}
+  describe('sumWithDefaults', () => {
+    it('должна возвращать сумму переданных аргументов', () => {
+      const valueA = random('number');
+      const valueB = random('number');
+      const result = sumWithDefaults(valueA, valueB);
 
-test('sumWithDefaults должна вернуть результат 7', () => {
-  expect(sumWithDefaults(5, 2)).toBe(7);
-});
+      expect(result).toBe(valueA + valueB);
+    });
 
-///////3-е задание//////////////////
-function returnFnResult(fn) {
-  return fn();
-}
+    it('значение по умолчанию второго аргумента должно быть 100', () => {
+      const value = random('number');
+      const result = sumWithDefaults(value);
 
-test('returnFnResult должна вернуть результат Bye!!!', () => {
-  expect(
-    returnFnResult(function () {
-      return 'Bye!!!';
-    })
-  ).toBe('Bye!!!');
-});
+      expect(result).toBe(value + 100);
+    });
+  });
 
-///////4-е задание//////////////////
-function returnCounter(numberOuter) {
-  return function (numberInner) {
-    return numberOuter + numberInner;
-  };
-}
+  describe('returnFnResult', () => {
+    it('должна возвращать результат вызова переданной функции', () => {
+      function fn() {
+        return value;
+      }
 
-// console.log(plus(5));
+      const value = random();
+      const result = returnFnResult(fn); // result = fn() -> value
 
-test('returnCounter должна вернуть 2', () => {
-  const F = returnCounter(1);
-  expect(F(1)).toBe(2);
-});
+      expect(result).toBe(value);
+    });
+  });
 
-///////5-е задание//////////////////
+  describe('returnCounter', () => {
+    it('должна возвращать функцию', () => {
+      const result = returnCounter();
 
-function returnArgumentsArray() {
-  const array = [];
-  for (let i = 0; i < arguments.length; i++) {
-    array.push(arguments[i]);
-  }
-  return array;
-}
+      expect(typeof result).toBe('function');
+    });
 
-test('returnArgumentsArray должна вернуть массив переданных аргументов', () => {
-  expect(returnArgumentsArray(1, [], 3, {})).toStrictEqual([1, [], 3, {}]);
-});
+    it('возвращаемая функция должна увеличивать переданное число на единицу при каждом вызове', () => {
+      const value = random('number');
+      const result = returnCounter(value);
 
-///////6-е задание//////////////////
-function bindFunction(fn, a, b) {
-  return fn(a, b);
-}
+      expect(result()).toBe(value + 1);
+      expect(result()).toBe(value + 2);
+      expect(result()).toBe(value + 3);
+    });
 
-function sum(a, b) {
-  return a + b;
-}
+    it('значение аргумента должно быть 0 по умолчанию', () => {
+      const result = returnCounter();
 
-test('bindFunction должна вернуть 6', () => {
-  expect(bindFunction(sum, 2, 4)).toBe(6);
+      expect(result()).toBe(1);
+      expect(result()).toBe(2);
+      expect(result()).toBe(3);
+    });
+  });
+
+  describe('returnArgumentsArray', () => {
+    it('должна возвращать переданные аргументы в виде массива', () => {
+      const value = random('array', 1);
+      const result = returnArgumentsArray(...value);
+
+      expect(result).toEqual(value);
+    });
+
+    it('должна возвращать пустой массив если нет аргументов', () => {
+      const result = returnArgumentsArray();
+
+      expect(result.length).toBe(0);
+    });
+  });
+
+  describe('bindFunction', () => {
+    const valuesArr = randomStringArray();
+
+    function fn(...valuesArr) {
+      return [...arguments].join('');
+    }
+
+    it('должна возвращать функцию', () => {
+      const result = bindFunction(fn);
+
+      expect(typeof result).toBe('function');
+    });
+
+    it('должна привязывать любое кол-во аргументов возвращаемой функции', () => {
+      const result = bindFunction(fn, ...valuesArr);
+
+      expect(result()).toBe(valuesArr.join(''));
+    });
+  });
 });
