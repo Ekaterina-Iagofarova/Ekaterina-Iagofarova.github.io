@@ -100,8 +100,7 @@ function findError(where) {
 /*
  Задание 5:
 
- Функция должна перебрать все дочерние узлы элемента переданного в параметре where и 
- удалить из него все текстовые узлы
+ Функция должна перебрать все дочерние узлы элемента переданного в параметре where и удалить из него все текстовые узлы
 
  Задачу необходимо решить без использования рекурсии, то есть можно не уходить вглубь дерева.
  Так же будьте внимательны при удалении узлов, т.к. можно получить неожиданное поведение при переборе узлов
@@ -114,7 +113,6 @@ function deleteTextNodes(where) {
   for (const node of where.childNodes) {
     if (node.nodeType === 3) {
       where.removeChild(node);
-      // array.push(node.textContent);
     }
   }
 
@@ -133,7 +131,18 @@ function deleteTextNodes(where) {
    После выполнения функции, дерево <span> <div> <b>привет</b> </div> <p>loftchool</p> !!!</span>
    должно быть преобразовано в <span><div><b></b></div><p></p></span>
  */
-function deleteTextNodesRecursive(where) {}
+function deleteTextNodesRecursive(where) {
+  for (let i = 0; i < where.childNodes.length; i++) {
+    const node = where.childNodes[i];
+
+    if (node.nodeType === 3) {
+      where.removeChild(node);
+      i--;
+    } else if (node.nodeType === 1) {
+      deleteTextNodesRecursive(node);
+    }
+  }
+}
 
 /*
  Задание 7 *:
@@ -155,7 +164,39 @@ function deleteTextNodesRecursive(where) {}
      texts: 3
    }
  */
-function collectDOMStat(root) {}
+function collectDOMStat(root) {
+  const statistics = {
+    tags: {},
+    classes: {},
+    texts: 0,
+  };
+
+  function check(root) {
+    for (const element of root.childNodes) {
+      if (element.nodeType === 3) {
+        statistics.texts++;
+      } else if (element.nodeType === 1) {
+        if (element.tagName in statistics.tags) {
+          statistics.tags[element.tagName]++;
+        } else {
+          statistics.tags[element.tagName] = 1;
+        }
+
+        for (const className of element.classList) {
+          if (className in statistics.classes) {
+            statistics.classes[className]++;
+          } else {
+            statistics.classes[className] = 1;
+          }
+        }
+        check(element);
+      }
+    }
+  }
+
+  check(root);
+  return statistics;
+}
 
 /*
  Задание 8 *:
@@ -189,7 +230,21 @@ function collectDOMStat(root) {}
      nodes: [div]
    }
  */
-function observeChildNodes(where, fn) {}
+function observeChildNodes(where, fn) {
+  const obs = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        fn({
+          type: mutation.addedNodes.length ? 'insert' : 'remove',
+          nodes: [
+            ...(mutation.addedNodes.length ? mutation.addedNodes : mutation.removedNodes),
+          ],
+        });
+      }
+    });
+  });
+  obs.observe(where, { childList: true, subtree: true });
+}
 
 export {
   createDivWithText,
