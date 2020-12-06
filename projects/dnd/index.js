@@ -24,24 +24,25 @@ function random(from, to) {
 }
 
 let drag;
-let x = 0;
-let y = 0;
+let startX = 0;
+let startY = 0;
 
 document.addEventListener('mousemove', (e) => {
   if (drag) {
-    drag.style.left = e.changeX - x + 'px';
-    drag.style.top = e.changeY - y + 'px';
+    drag.style.left = e.clientX - startX + 'px';
+    drag.style.top = e.clientY - startY + 'px';
   }
 });
 
 export function createDiv() {
   const div = document.createElement('div');
-  const min = 40;
-  const max = 300;
+  const min = 10;
+  const max = 100;
   const color = 0xffffff;
 
   div.className = 'draggable-div';
   div.style.background = '#' + random(0, color).toString(16);
+  console.log(div.style.background);
   div.style.top = random(0, window.innerHeight) + 'px';
   div.style.left = random(0, window.innerWidth) + 'px';
   div.style.width = random(min, max) + 'px';
@@ -49,8 +50,8 @@ export function createDiv() {
 
   div.addEventListener('mousedown', (e) => {
     drag = div;
-    x = e.offsetX;
-    y = e.offsetY;
+    startX = e.offsetX;
+    startY = e.offsetY;
   });
 
   div.addEventListener('mouseup', () => (drag = false));
@@ -61,6 +62,7 @@ export function createDiv() {
 const addDivButton = homeworkContainer.querySelector('#addDiv');
 
 addDivButton.addEventListener('click', function () {
+  // console.log('hhh')
   const div = createDiv();
   homeworkContainer.appendChild(div);
 });
